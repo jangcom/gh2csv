@@ -1,0 +1,164 @@
+%YAML 1.2
+---
+#
+# Input file for gh2csv; encoded in UTF-8
+#
+# Jaewoong Jang
+# 2021-11-19
+#
+run:
+  io:
+    out_path: ./sample_results
+    out_bname_comps:  # First-level keys of a repo
+      - repo
+      - feature
+      - flag
+    out_encoding: utf-8
+    out_utc: +9  # Offset with respect to Coordinated Universal Time (UTC)
+  schedule:
+    toggle: False
+    every: day  # e.g. day, minute, second, monday, ...
+    at: "06:00:00"  # Optional
+  active_repos:
+    - open
+    - closed
+    - time_series
+    - private_repo
+
+open:
+  owner: jangcom
+  repo: gh2csv
+  is_repo_private: False
+  token: ""
+  feature: issues
+  flag: open
+  filters:
+    #----------------------------------------------------------
+    # Filter 1: State
+    #----------------------------------------------------------
+    # Allowed values:
+    # - open
+    # - closed
+    state: open
+    #----------------------------------------------------------
+    # Filter 2: Issue numbers
+    #----------------------------------------------------------
+    # Allowed values **in order of precedence**:
+    # - all: Represents all existing issue numbers.
+    # - num: A single issue number, e.g. 1
+    # - num-num: A range of issue numbers, e.g. 5-10
+    numbers:
+      - all
+    #----------------------------------------------------------
+    # Filter 3: Labels or tags
+    #----------------------------------------------------------
+    # Allowed values **in order of precedence**:
+    # - all: Represents all existing labels.
+    # - -lab: A label to be **excluded**, e.g. -bug
+    # - lab: A label to be included, e.g. enhancement
+    labels:
+      - all
+    #--------------------------------------------------------------
+    # Filter 4: Strings in the title or body
+    # *** Raises an error if the 'numbers' list contains 'all'! ***
+    #--------------------------------------------------------------
+    # Allowed values **in order of precedence**:
+    # - all: Represents all existing strings.
+    # - -lab: A string to be **excluded**, e.g. -KLY
+    # - lab: A string to be included, e.g. DCPS
+    # strings:
+      # - all
+  io:
+    # gh_attr;<header>
+    # where
+    # - gh_attr: GitHub attribute
+    # - <header>: CSV header; optional
+    out_cols:
+      - state
+      - number
+      - labels
+      - title
+      - created_at
+      - updated_at
+
+closed:
+  owner: jangcom
+  repo: gh2csv
+  is_repo_private: False
+  token: ""
+  feature: issues
+  flag: closed
+  filters:
+    state: closed
+    numbers:
+      - all
+    labels:
+      - all
+  io:
+    out_cols:
+      - state
+      - number
+      - labels
+      - title
+      - created_at
+      - updated_at
+      - closed_at
+
+time_series:
+  owner: jangcom
+  repo: gh2csv
+  is_repo_private: False
+  token: ""
+  feature: issues
+  flag: time_series
+  is_time_series: True
+  io:
+    # For is_time_series == True, only the following values are allowed:
+    # - date
+    # - time
+    # - num_iss_all
+    # - num_iss_open
+    # - num_iss_closed
+    # all of which are calculated from within gh2csv.
+    out_cols:
+      - date;Date
+      - time;Time
+      - num_iss_all;Number of all issues
+      - num_iss_open;Number of open issues
+      - num_iss_closed;Number of closed issues
+
+private_repo:
+  owner: the_owner  # Replace it with a valid repo owner name.
+  repo: the_repo  # Replace it with a valid repo name.
+  is_repo_private: True  # If True, a valid token must be provided.
+  token: the_token  # Replace it with a valid token.
+  #
+  # Verbatim example of an error message
+  #
+  # -----------------------------------------------------------
+  # repo: [private_repo]
+  # Access to [https://api.github.com/repos/the_owner/the_repo/issues] failed.
+  # Check the following items:
+  # - owner
+  # - repo
+  # - token (if is_repo_private == True)
+  # -----------------------------------------------------------
+  # Terminating.
+  #
+  feature: issues
+  flag: open
+  filters:
+    state: open
+    numbers:
+      - all
+    labels:
+      - all
+  io:
+    out_cols:
+      - state
+      - number
+      - labels
+      - title
+      - created_at
+      - updated_at
+...
